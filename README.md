@@ -22,4 +22,8 @@ python selfblox.py
 We welcome contributions to SelfBLOX! If you have ideas for new features or improvements, please create a pull request with your changes. Additionally, feel free to open an issue if you encounter any bugs or have any suggestions for enhancements.
 
 ## License
-This project is licensed under the MIT License - see the [LICENSE.md](https://github.com/your-username/selfblox/blob/master/LICENSE.md) file for details.
+This project is licensed under the MIT License - see the [LICENSE.md](https://github.com/Damix-hash/SelfBLOX/blob/main/LICENSE.md) file for details.
+
+## Terms Of Service
+
+Before using this project make sure you've checked out our Terms Of Service [Terms-Of-Service.md](https://raw.githubusercontent.com/Damix-hash/SelfBLOX/main/Terms-Of-Service.md)
