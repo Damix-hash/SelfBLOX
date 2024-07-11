@@ -1,7 +1,7 @@
 (THIS PROGRAM IS ONLY FOR EDUCATIONAL PURPOUSES ONLY)
 # SelfBLOX
 
-SelfBLOX is a program that leverages various APIs to automate a wide range of functions related to the popular online game Roblox. Through this program, users can easily access and manage their account information, check their Robux history, and perform many other tasks with just a few clicks.
+SelfBLOX is a program that leverages various APIs to automate a wide range of functions related to the popular online game Roblox. Through this program, users can easily access and manage their account information, check their Robux history, and perform many other tasks.
 
 ## Features
 - Retrieve account information
