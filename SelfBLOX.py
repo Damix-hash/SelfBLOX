@@ -31,13 +31,17 @@ try:
     import zipfile
     from rblxopencloud import *
 
-except ModuleNotFoundError as f:
-    if "rblxopencloud" in str(f):
-        os.system(f'python -m pip install rblx-open-cloud')
-    elif "mediafire" in str(f):
-        os.system(f'python -m pip install git+https://github.com/Juvenal-Yescas/mediafire-dl')
-    else: 
-        os.system(f'python -m pip install {f.name}')
+except ImportError as e:
+    missing_module = str(e).split()[-1].replace("'", "")
+    if missing_module == "rblxopencloud":
+        os.system('pip install rblx-open-cloud')
+    elif missing_module == "mediafire_dl":
+        os.system('pip install git+https://github.com/Juvenal-Yescas/mediafire-dl')
+    elif missing_module == "PIL":
+        os.system('pip install pillow')
+    else:
+        os.system(f'pip install {missing_module}')
+    print("Finished downloading", missing_module)
     rerun()
     
 try:
