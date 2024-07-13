@@ -76,9 +76,9 @@ except ModuleNotFoundError as f:
 init()
 
 global ver
-ver = 0.1
+ver = 1
 
-response = requests.get("https://raw.githubusercontent.com/Damix-hash/roblox-stuff/main/version")
+response = requests.get("https://raw.githubusercontent.com/Damix-hash/SelfBLOX/main/version")
 if response.ok:
     if not str(response.text) != ver:
         input(f"Invalid Version. Latest Version {response.text} Press ENTER To Leave")
