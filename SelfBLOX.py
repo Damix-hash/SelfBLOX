@@ -1314,6 +1314,10 @@ def main(option, session, token, userid, username, cookie):
                     target_userids.append(int(usersId))
             else:
                 target_userids.append(int(userIds))
+
+            if int(len(target_userids)) > 9:
+                target_userids.pop(random.randrange(len(target_userids)))
+            
             amount = int(input("How Many Times do you want to spam with group chat?\n> "))
             separator()
 
