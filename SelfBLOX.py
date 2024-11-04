@@ -2027,8 +2027,8 @@ def main_setup(roblox_cookie):
             session.headers.update({"referer": "https://www.roblox.com"})
 
             try:
-                response = session.get("https://www.roblox.com/mobileapi/userinfo")
-                response.raise_for_status()
+                check_cookie = session.get("https://accountinformation.roblox.com/v1/phone")
+                check_cookie.raise_for_status()
             except requests.RequestException as e:
                 cprint("red", "!", "ROBLOX Cookie Didn't Work!")
                 cprint("red", "!", "Please Check If Cookie Is Correct.")
@@ -2039,9 +2039,17 @@ def main_setup(roblox_cookie):
                 new_cookie = str(input("> "))
                 main_setup(new_cookie)
             else:
+                
+                get_id = session.get("https://roblox.com", proxies=GetProxies()).text.split("\n")
+
+                for item in get_id:
+                    if 'data-userid="' in item:
+                        return_id = item.split('data-userid="')[1].replace('"', '')
+                        break
+                response = session.get(f"https://users.roblox.com/v1/users/{return_id}", proxies=GetProxies())
                 user_data = response.json()
-                username = user_data["UserName"]
-                userid = user_data["UserID"]
+                username = user_data["name"]
+                userid = return_id
                 option_picker(session, userid, username, roblox_cookie)
                 
     else:
