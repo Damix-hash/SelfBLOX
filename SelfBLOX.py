@@ -48,29 +48,17 @@ try:
     from ChromedriverDownloader import * # type: ignore
     from PyTokio import * # type: ignore
 except ModuleNotFoundError as f:
-    print("No Modules Called:\nPyTokio and\nChromedriver Were Found.")
-    print("For your safety we have to provide from which sources we are gonna download.")
-    print()
-    print("ChromeDriverDownloader = https://github.com/Damix-hash/ChromedriveDownloader")
-    print("PyTokio = https://github.com/DaFrenchTokio/PyTokio")
-    print("These projects are open-sourced so check them out!")
-    print()
-    input("Press ENTER To Download These Projects And Continue.")
-
     if not os.path.exists("PyTokio"):
         os.mkdir("PyTokio")
-
         response = requests.get("https://raw.githubusercontent.com/DaFrenchTokio/PyTokio/main/PyTokio/__init__.py")
         with open("Pytokio/__init__.py", "w", encoding="utf-8") as pytokio_source:
             pytokio_source.write(response.text)
 
     if not os.path.exists("ChromedriverDownloader"):
         os.mkdir("ChromedriverDownloader")
-
         response = requests.get("https://raw.githubusercontent.com/Damix-hash/ChromedriveDownloader/main/ChromedriverDownloader/__init__.py")
         with open("ChromedriverDownloader/__init__.py", "w", encoding="utf-8") as ChromedriverDownloader_source:
             ChromedriverDownloader_source.write(response.text)
-        
     rerun()
     
 init()
