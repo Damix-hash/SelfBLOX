@@ -12,13 +12,11 @@ try:
     import base64
     from colorama import *
     import datetime
-    import json
     import logging
     import mediafire_dl
     from PIL import Image, ImageDraw
     import random
     import requests
-    import rblxopencloud
     import subprocess
     import webbrowser
     from selenium import webdriver
@@ -26,7 +24,6 @@ try:
     import string
     import time
     from time import gmtime, strftime
-    import urllib3
     import uuid
     import zipfile
     from rblxopencloud import *
@@ -48,27 +45,32 @@ try:
     from ChromedriverDownloader import * # type: ignore
     from PyTokio import * # type: ignore
 except ModuleNotFoundError as f:
+    print("Installing Important Modules: PyTokio, ChromedriverDownloader. Please wait.")
     if not os.path.exists("PyTokio"):
         os.mkdir("PyTokio")
+
         response = requests.get("https://raw.githubusercontent.com/DaFrenchTokio/PyTokio/main/PyTokio/__init__.py")
         with open("Pytokio/__init__.py", "w", encoding="utf-8") as pytokio_source:
             pytokio_source.write(response.text)
 
     if not os.path.exists("ChromedriverDownloader"):
         os.mkdir("ChromedriverDownloader")
+
         response = requests.get("https://raw.githubusercontent.com/Damix-hash/ChromedriveDownloader/main/ChromedriverDownloader/__init__.py")
         with open("ChromedriverDownloader/__init__.py", "w", encoding="utf-8") as ChromedriverDownloader_source:
             ChromedriverDownloader_source.write(response.text)
+        
     rerun()
     
 init()
 
 global ver
-ver = 1
+ver = 1.1
 
 response = requests.get("https://raw.githubusercontent.com/Damix-hash/SelfBLOX/main/version")
 if response.ok:
     if not str(response.text) != ver:
+        print("https://github.com/Damix-hash/SelfBLOX/edit/main/SelfBLOX.py")
         input(f"Invalid Version. Latest Version {response.text} Press ENTER To Leave")
         exit()
 else:
@@ -234,10 +236,10 @@ def setup_files():
     makedir("SelfBLOX/Logs")
     makefile("SelfBLOX/Logs/run-time.log")
 
-def unban(session, token, cookie):
+def unban(session, token):
     cprint("red", "!", "Checking If You Are Banned.")
     
-    ban_check = requests.get("https://roblox.com/home", allow_redirects=True, cookies={".ROBLOSECURITY":cookie})
+    ban_check = session.get("https://roblox.com/home", allow_redirects=True, proxies=GetProxy())
     if "not-approved" in str(ban_check.url):
         unban_url = "https://usermoderation.roblox.com/v1/not-approved/reactivate"
 
@@ -253,7 +255,7 @@ def unban(session, token, cookie):
         }
 
         response = session.post(unban_url, headers=unban_headers, proxies=GetProxy())
-        print(response.content)
+        print(response.json())
 
 def option_picker(session, userid, username, cookie):
 
@@ -261,11 +263,13 @@ def option_picker(session, userid, username, cookie):
     token_response = session.post("https://auth.roblox.com/v2/logout", headers=headers)
     token = token_response.headers["x-csrf-token"]
 
+    unban(session, token)
     clr()
     title_message("Home")
     print(banner)
     welcome_print(137)
     cprint(msg="Your Are Logged In As: " + Style.BRIGHT + username + Style.NORMAL, width=135)
+    cprint(msg="Current X-CSRF-TOKEN: " + Style.BRIGHT + token + Style.NORMAL, width=135)
     cprint(msg="What would you like to do today?\n", width=130)
     separator()
     help()
@@ -284,21 +288,22 @@ setup_files()
 logging.basicConfig(filename=str(os.path.join(path, "SelfBLOX", "logs", "run-time.log")), level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(str(os.path.join(path, "SelfBLOX", "logs", "run-time.log")))
 
-if os.path.getsize("SelfBLOX/cookie.txt") > 0:
-    with open("SelfBLOX/cookie.txt", "r", encoding="utf-8") as read_cookie:
-            base_cookie = read_cookie.read()
-            unobf_cookie = base64_decode(base_cookie)
-            if not unobf_cookie.startswith(warning_tag):
-                cookie = warning_tag + unobf_cookie
-            else:
-                silly_cookie = unobf_cookie.replace(warning_tag, "")
-                encoded_cookie = base64_encode(silly_cookie)
 
-                with open("SelfBLOX/cookie.txt", "w", encoding="utf-8") as login_cookie:
-                    login_cookie.write(encoded_cookie)
+with open("SelfBLOX/cookie.txt", "r", encoding="utf-8") as read_cookie:
+        base_cookie = read_cookie.read()
+        unobf_cookie = base64_decode(base_cookie)
+            
+        if not unobf_cookie.startswith(warning_tag):
+            cookie = warning_tag + unobf_cookie
+        else:
+            cookie = unobf_cookie
+            
+            silly_cookie = unobf_cookie.replace(warning_tag, "")
+            encoded_cookie = base64_encode(silly_cookie)
+            
+            with open("SelfBLOX/cookie.txt", "w", encoding="utf-8") as login_cookie:
+                login_cookie.write(encoded_cookie)
                 
-                cookie = unobf_cookie
-
 def main(option, session, token, userid, username, cookie):
     '''
     So hello there programmer!
@@ -306,7 +311,7 @@ def main(option, session, token, userid, username, cookie):
 
     So this is the MAIN function of the program
     Do not edit anything... Not even the "Unless you know what you are doing"
-    Because the script should be 100% perfect and does not require any optimatizations or anything like that
+    Because im pretty sure it will explode if you edit even slight part of the code.
     '''
 
     
@@ -712,31 +717,51 @@ def main(option, session, token, userid, username, cookie):
             if response.ok:
                 data = response.json()["data"]
                 for items in data:
-                    if "productId" in items:
-                        ids.append(items["productId"])
+                    user_data = {
+                        "item_id": items.get("id"),
+                        "creatorTargetId": items.get("creatorTargetId"),
+                        "assetType": items.get("assetType", 1) # 1 for bundle
+                    }
+                    ids.append(user_data)
                 cprint("red", str(count), f"Scraped {len(data)} Ids!")
                 count += 1
                 cursor = response.json()["nextPageCursor"]
 
         separator()
         count = 0
-        for assetid in ids:
-            response = session.post(
-                f"https://economy.roblox.com/v1/purchases/products/{assetid}",
-                json={"expectedCurrency": 1, "expectedPrice": 0, "expectedSellerId": 1},
-                headers={"X-CSRF-TOKEN": token},
-                proxies=GetProxy(), # type: ignore
-            )
-            if response.ok:
-                data = response.json()
-                if data["purchased"] == True:
-                    cprint("green", str(count), f"Successfully purchased: {data['assetName']} || Id: {assetid}")
-                else:
-                    cprint("red", str(count), f"Failed to purchase: {data['assetName']}: {data['errorMsg']}")
-                count += 1
-            elif "TooManyRequests" in response.text or response.status_code == 429:
-                cprint("yellow", str(count), "Rate Limit! Waiting 60 Seconds.")
-                time.sleep(60)
+        for info in ids:
+            assetid = info.get("item_id")
+            
+            body = {
+                "items": [
+                    {
+                    "itemType": int(info.get("assetType")),
+                    "id": assetid
+                    }
+                ]
+            }
+            
+            sale_info = session.post("https://catalog.roblox.com/v1/catalog/items/details", headers=func_headers, json=body, proxies=GetProxies())
+            sale_data = sale_info.json()
+            print(sale_data)
+            if sale_data["data"][0]["isOffSale"] != "true":
+                response = session.post(
+                    f"https://economy.roblox.com/v1/purchases/products/{assetid}",
+                    json={"expectedCurrency": 1, "expectedPrice": 0, "expectedSellerId": info.get("creatorTargetId")},
+                    headers=func_headers,
+                    proxies=GetProxy(), # type: ignore
+                )
+                
+                if response.ok:
+                    data = response.json()
+                    if data["purchased"] == True:
+                        cprint("green", str(count), f"Successfully purchased: {data['assetName']} || Id: {assetid}")
+                    else:
+                        cprint("red", str(count), f"Failed to purchase: {data['assetName']}: {data['errorMsg']}")
+                    count += 1
+                elif "TooManyRequests" in response.text or response.status_code == 429:
+                    cprint("yellow", str(count), "Rate Limit! Waiting 60 Seconds.")
+                    time.sleep(60)
 
         separator()
         cprint("green", "!", "Finished Purchasing Free Items!")
@@ -1333,8 +1358,6 @@ def main(option, session, token, userid, username, cookie):
         path_script2 = f"{path}\SelfBLOX\Mass-Uploader\{date}"
         open_path_script = f"{path}\\SelfBLOX\\Mass-Uploader\\{date}"
         makedir(path_script)
-        makedir(f"{path_script}/Image")
-        makedir(f"{path_script}/Audio")
         cprint(msg="Pick option for what do you want to mass upload.")
         cprint("red", "1", f"Images/Decals")
         cprint("red", "2", f"Audio")
@@ -1496,18 +1519,17 @@ def main(option, session, token, userid, username, cookie):
                 global apikey_Secret_Preview
                 global apikey_Secret
                 
+                #print(response.json())
                 apikey_Secret_Preview = response.json().get("apikeySecretPreview")
                 apikey_Secret = response.json().get('apikeySecret')
-
-                if os.path.exists(f"Selfbot/Accounts/{username}/api_key.txt"):
-                    
-                    with open(f"Selfbot/Accounts/{username}/api_key.txt", "a", encoding="utf-8") as api_file_key:
-                        api_file_key.write(f"[apikey_Secret_Preview:apikey_Secret] > {apikey_Secret_Preview}:{apikey_Secret}\n")
-                else:
-                    makefile(f"Selfbot/Accounts/{username}/api_key.txt")
-
-                    with open(f"Selfbot/Accounts/{username}/api_key.txt", "a", encoding="utf-8") as api_file_key:
-                        api_file_key.write(f"[apikey_Secret_Preview:apikey_Secret] > {apikey_Secret_Preview}:{apikey_Secret}\n")
+                
+                if not os.path.exists(f"SelfBLOX/Accounts/{username}"):
+                    os.mkdir(f"SelfBLOX/Accounts/{username}")
+                    if not os.path.exists(f"SelfBLOX/Accounts/{username}/api_key.txt"):
+                        open(f"SelfBLOX/Accounts/{username}/api_key.txt", "w", encoding="utf-8").close()
+                        
+                with open(f"SelfBLOX/Accounts/{username}/api_key.txt", "a", encoding="utf-8") as api_file_key:
+                    api_file_key.write(f"[apikey_Secret_Preview]: {apikey_Secret_Preview}\n[apikey_Secret]: {apikey_Secret}\n")
                     
         def check_for_ffmpeg():
             try:
@@ -1548,6 +1570,7 @@ def main(option, session, token, userid, username, cookie):
                 cprint(msg="Audio baits are already avaible!")
                    
         if mass_uploader_option == 1:
+                makedir(f"{path_script}/Image")
                 create_api_key("S3LFBLOX", "S3LFBLOX")
                 creator = User(int(userid), str(apikey_Secret))
                 cprint(msg="Place Image into the folder then continue!")
@@ -1610,7 +1633,7 @@ def main(option, session, token, userid, username, cookie):
                         result.save(f"{path_script}\\Image\\UploadImages\\{random_string}{extension}")
                     cprint(msg="Method completed!")
                 separator()
-                uploaded = 0
+
                 for image in os.listdir(f"{path_script}/Image/UploadImages"):
                     
                     name = random.choice(names) + " " + random.choice(names)
@@ -1652,6 +1675,7 @@ def main(option, session, token, userid, username, cookie):
                         cprint("green", ">", f"Uploaded!: https://roblox.com/library/{decal_id}")
 
         elif mass_uploader_option == 2:
+            makedir(f"{path_script}/Audio")
             get_baits()
             check_for_ffmpeg()
             
@@ -1722,7 +1746,7 @@ def main(option, session, token, userid, username, cookie):
                             "assetPrivacy": 1
                         }
 
-                        response = session.post("https://publish.roblox.com/v1/audio", json=data, headers=func_headers, proxies=GetProxy())
+                        response = session.post("https://publish.roblox.com/v1/audio", json=data, headers=mass_upload_headers, proxies=GetProxy())
                         data = response.json()
                         cprint("red", "!", str(response))
                         
@@ -1759,7 +1783,57 @@ def main(option, session, token, userid, username, cookie):
                     cprint("green", ">", f"Ids got saved to: {path_script}/Audio/ids.txt")
                 else:
                     cprint("red", "!", "Failed to save Ids.")
-                                
+                    
+        elif mass_uploader_option == 3:
+                makedir(f"{path_script}/Model")
+                create_api_key("S3LFBLOX", "S3LFBLOX")
+                creator = User(int(userid), str(apikey_Secret))
+                cprint(msg="Place Model into the folder then continue!")
+                webbrowser.open(os.path.realpath(f"{open_path_script}\\Model"))
+                input("Press ENTER To Continue")
+                for file in os.listdir(f"{path_script}/Model"):
+                    if file.startswith(audio):
+                        file_path = os.path.join(f"{path_script}/Model", file)
+                        extension = os.path.splitext(file_path)[1]
+                    makedir(f"{path_script}/Model/UploadModels")
+                    
+                amount_of_uploading = int(input("Input Amount Of Times You Want To Upload The Model > "))
+                for upload in range(0, amount_of_uploading):
+                    name = random.choice(names) + " " + random.choice(names)
+                    description = "This Object Was Uploaded With SelfBLOX! The Best FREE Multi Tool!"
+                    with open(f"Image/{image}", "rb") as file:
+                        try:
+                            asset = creator.upload_asset(file, AssetType.Model, "skibidi", "none")
+                            print(asset)
+                        except Exception as e:
+                            pass
+                    while True:
+                        try:
+                            status = asset.fetch_operation()
+                            if status:
+                                asset = status
+                                break
+                            else:
+                                time.sleep(0.1)
+                        except exceptions.RateLimited:
+                            time.sleep(0.1)
+                        except exceptions.InvalidKey:
+                            pass
+                        
+                    if asset:
+                        rblxopencloud_asset = str(asset).replace("rblxopencloud.Asset(", "")
+                        rblxopencloud_asset = rblxopencloud_asset.replace('"', "")
+                        rblxopencloud_asset = rblxopencloud_asset.replace('name=', "Name: ")
+                        rblxopencloud_asset = rblxopencloud_asset.replace("type=AssetType.Decal)", "Type: Decal")
+                        rblxopencloud_asset = "ID: https://roblox.com/library/" + rblxopencloud_asset
+
+                        decal_id = str(asset).replace("rblxopencloud.Asset(", "")
+                        find_id = decal_id.find("name=")-2
+                        decal_id = decal_id[:find_id]
+
+                        with open(f"{path_script}/Image/ids.txt", "a", encoding="utf-8") as avaible_ids:
+                            avaible_ids.write(f"{rblxopencloud_asset}\n")
+                        cprint("green", ">", f"Uploaded!: https://roblox.com/library/{decal_id}")
         input("Press ENTER To Continue.")
         option_picker(session, userid, username, cookie)
 
@@ -1870,7 +1944,7 @@ def main(option, session, token, userid, username, cookie):
             session.post("https://locale.roblox.com/v1/locales/set-user-supported-locale", headers=func_headers, data={"supportedLocaleCode": "th_th"}, proxies=GetProxy())
             session.post("https://www.roblox.com/account/settings/account-restrictions?isEnabled=true", headers=func_headers, proxies=GetProxy())
             session.post("https://notifications.roblox.com/v2/notifications/notification-preferences", headers=func_headers, data = {"updatedPreferences": [{"notificationType": "MarketingEmails", "notificationChannel": "Email", "preferenceStatus": "All"}]}, proxies=GetProxy())
-            cprint("green", "!", "Finished!")
+            cprint("green", "!", "Finished doing small nuke.")
         input("Press ENTER To Continue.")
         option_picker(session, userid, username, cookie)
 
@@ -2025,7 +2099,13 @@ def main_setup(roblox_cookie):
                 cprint(msg="The Old Cookie Was Placed In previous-cookie.txt")
                 cprint("red", "!", "Please put new cookie here:")
                 new_cookie = str(input("> "))
+                
+                save_cookie = new_cookie.replace(warning_tag, "")
+                base_cookie = base64_encode(new_cookie)
+                with open("SelfBLOX/cookie.txt", "w", encoding="utf-8") as save_cookie:
+                    save_cookie.write(base_cookie)
                 main_setup(new_cookie)
+                
             else:
                 
                 get_id = session.get("https://roblox.com", proxies=GetProxies()).text.split("\n")
@@ -2038,6 +2118,7 @@ def main_setup(roblox_cookie):
                 user_data = response.json()
                 username = user_data["name"]
                 userid = return_id
+
                 option_picker(session, userid, username, roblox_cookie)
                 
     else:
