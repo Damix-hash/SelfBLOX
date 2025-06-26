@@ -43,15 +43,8 @@ except ImportError as e:
     
 try:
     from ChromedriverDownloader import * # type: ignore
-    from PyTokio import * # type: ignore
 except ModuleNotFoundError as f:
-    print("Installing Important Modules: PyTokio, ChromedriverDownloader. Please wait.")
-    if not os.path.exists("PyTokio"):
-        os.mkdir("PyTokio")
-
-        response = requests.get("https://raw.githubusercontent.com/DaFrenchTokio/PyTokio/main/PyTokio/__init__.py")
-        with open("Pytokio/__init__.py", "w", encoding="utf-8") as pytokio_source:
-            pytokio_source.write(response.text)
+    print("Installing Important Modules: ChromedriverDownloader. Please wait.")
 
     if not os.path.exists("ChromedriverDownloader"):
         os.mkdir("ChromedriverDownloader")
@@ -65,7 +58,7 @@ except ModuleNotFoundError as f:
 init()
 
 global ver
-ver = 1.1
+ver = 1.2
 
 response = requests.get("https://raw.githubusercontent.com/Damix-hash/SelfBLOX/main/version")
 if response.ok:
@@ -239,7 +232,7 @@ def setup_files():
 def unban(session, token):
     cprint("red", "!", "Checking If You Are Banned.")
     
-    ban_check = session.get("https://roblox.com/home", allow_redirects=True, proxies=GetProxy())
+    ban_check = session.get("https://roblox.com/home", allow_redirects=True)
     if "not-approved" in str(ban_check.url):
         unban_url = "https://usermoderation.roblox.com/v1/not-approved/reactivate"
 
@@ -254,7 +247,7 @@ def unban(session, token):
             "Sec-Fetch-Site": "same-site"
         }
 
-        response = session.post(unban_url, headers=unban_headers, proxies=GetProxy())
+        response = session.post(unban_url, headers=unban_headers)
         print(response.json())
 
 def option_picker(session, userid, username, cookie):
@@ -320,7 +313,7 @@ def main(option, session, token, userid, username, cookie):
 
     def get__RequestVerificationToken(session, userid): # Not Being Used
         # will be used next time
-        response = session.get(f'https://www.roblox.com/abusereport/userprofile?id={userid}', proxies=GetProxy())
+        response = session.get(f'https://www.roblox.com/abusereport/userprofile?id={userid}')
         if response.ok:
             site_data = response.text
             site_data = site_data.split('<input name="__RequestVerificationToken" type="hidden" value="')[1]
@@ -345,7 +338,7 @@ def main(option, session, token, userid, username, cookie):
         cprint("green", ">", "Getting Account Information.")
         separator()
 
-        response = session.get("https://users.roblox.com/v1/users/authenticated", proxies=GetProxy())
+        response = session.get("https://users.roblox.com/v1/users/authenticated")
 
         if response.ok:
             data = response.json()
@@ -353,7 +346,7 @@ def main(option, session, token, userid, username, cookie):
             userID = data["id"]
             displayName = data["displayName"]
 
-        response = session.get("https://users.roblox.com/v1/birthdate", proxies=GetProxy()) # type: ignore
+        response = session.get("https://users.roblox.com/v1/birthdate") # type: ignore
                                
         if response.ok:
             data = response.json()
@@ -364,7 +357,7 @@ def main(option, session, token, userid, username, cookie):
                 birthMonth = "0" + str(birthMonth)
             formatted = "[DD-MM-YYYY] "+ str(birthDay)+ "-" + str(birthMonth) + "-" + str(birthYear)
 
-        response = session.get("https://users.roblox.com/v1/description", proxies=GetProxy())
+        response = session.get("https://users.roblox.com/v1/description")
         if response.ok:
             data = response.json()
             if data["description"] == "":
@@ -372,7 +365,7 @@ def main(option, session, token, userid, username, cookie):
             else:
                 description = data["description"]
 
-        response = session.get("https://users.roblox.com/v1/gender", proxies=GetProxy()) # type: ignore
+        response = session.get("https://users.roblox.com/v1/gender") # type: ignore
         if response.ok:
             data = response.json()
             gender_data = data["gender"]
@@ -381,7 +374,7 @@ def main(option, session, token, userid, username, cookie):
             else:
                 gender = "Female"
 
-        response = session.get("https://www.roblox.com/my/settings/json", proxies=GetProxy()) # type: ignore
+        response = session.get("https://www.roblox.com/my/settings/json") # type: ignore
         
         if response.ok:
             data = response.json()
@@ -390,7 +383,7 @@ def main(option, session, token, userid, username, cookie):
             premium = data["IsPremium"]
             IsEmailVerified = data["IsEmailVerified"]
 
-        response = session.get("https://accountinformation.roblox.com/v1/promotion-channels", proxies=GetProxy()) # type: ignore
+        response = session.get("https://accountinformation.roblox.com/v1/promotion-channels") # type: ignore
         
         if response.ok:
             data = response.json()
@@ -400,7 +393,7 @@ def main(option, session, token, userid, username, cookie):
             twitch = data["twitch"]
             guilded = data["guilded"]
 
-        response = session.get("https://economy.roblox.com/v1/user/currency", proxies=GetProxy()) # type: ignore
+        response = session.get("https://economy.roblox.com/v1/user/currency") # type: ignore
         
         if response.ok:
             data = response.json()
@@ -426,7 +419,7 @@ def main(option, session, token, userid, username, cookie):
 
         while cursor != None:
             badges_api = f"https://badges.roblox.com/v1/users/{userid}/badges?limit=100&sortOrder=Asc&cursor={cursor}"
-            response = requests.get(badges_api, proxies=GetProxy()) # type: ignore
+            response = requests.get(badges_api) # type: ignore
             if response.ok: 
                 data = response.json()["data"]
                 if data != []:
@@ -444,7 +437,7 @@ def main(option, session, token, userid, username, cookie):
 
         for universeids in game_IDs:
             universeData = f"https://www.roblox.com/games/{universeids}"
-            response = requests.get(universeData, proxies=GetProxy()) # type: ignore
+            response = requests.get(universeData) # type: ignore
             for line in response.text.split("\n"):
                 if "<title>" in line:
                     title = line
@@ -649,7 +642,7 @@ def main(option, session, token, userid, username, cookie):
             proxies=GetProxy(), # type: ignore
         )
         response = session.get(
-            f"https://friends.roblox.com/v1/users/{userid}/friends", proxies=GetProxy() # type: ignore
+            f"https://friends.roblox.com/v1/users/{userid}/friends" # type: ignore
         )
 
         if response.ok:
@@ -741,7 +734,7 @@ def main(option, session, token, userid, username, cookie):
                 ]
             }
             
-            sale_info = session.post("https://catalog.roblox.com/v1/catalog/items/details", headers=func_headers, json=body, proxies=GetProxies())
+            sale_info = session.post("https://catalog.roblox.com/v1/catalog/items/details", headers=func_headers, json=body)
             sale_data = sale_info.json()
             print(sale_data)
             if sale_data["data"][0]["isOffSale"] != "true":
@@ -791,7 +784,7 @@ def main(option, session, token, userid, username, cookie):
         def check_group_exists(group_id):
             cprint(msg="Checking If ROBLOX Group Exists")
             url = f"https://groups.roblox.com/v2/groups?groupIds={group_id}"
-            response = requests.get(url, proxies=GetProxy()) # type: ignore
+            response = requests.get(url) # type: ignore
             if response.ok:
                 data = response.json()
                 groups = data["data"]
@@ -803,7 +796,7 @@ def main(option, session, token, userid, username, cookie):
         def get_group_name(group_id):
             cprint(msg="Getting GroupName")
             url = f"https://groups.roblox.com/v2/groups?groupIds={group_id}"
-            response = requests.get(url, proxies=GetProxy()) # type: ignore
+            response = requests.get(url) # type: ignore
             if response.ok:
                 data = response.json()
                 groups = data["data"]
@@ -820,7 +813,7 @@ def main(option, session, token, userid, username, cookie):
             cursor = ""
             while cursor != None:
                 url = f"https://catalog.roblox.com/v1/search/items?category=All&creatorTargetId={groupid}&creatorType=Group&cursor={cursor}&limit=100&sortOrder=Desc"
-                response = requests.get(url, proxies=GetProxy()) # type: ignore
+                response = requests.get(url) # type: ignore
                 if response.ok:
                     data = response.json()["data"]
                     if data != []:
@@ -860,7 +853,7 @@ def main(option, session, token, userid, username, cookie):
             url = f"https://assetdelivery.roblox.com/v1/asset?id={asset_id}"
             save_path = f"{folder}/{asset_id}-{random_string}.xml"
 
-            response = requests.get(url, proxies=GetProxy()) # type: ignore
+            response = requests.get(url) # type: ignore
             if response.ok:
                 with open(save_path, "wb") as file:
                     try:
@@ -906,7 +899,7 @@ def main(option, session, token, userid, username, cookie):
                     url = f"https://assetdelivery.roblox.com/v1/asset/?id={template_id}"
                     random_string = custom_random_string(25)
                     save_path = f"{folder_to_save}/{template_id}-{random_string}.png"
-                    response = requests.get(url, proxies=GetProxy()) # type: ignore
+                    response = requests.get(url) # type: ignore
                     if response.ok:
                         with open(save_path, "wb") as file:
                             try:
@@ -978,7 +971,7 @@ def main(option, session, token, userid, username, cookie):
     elif option == 9:
 
         def body_colors(head, torso, right_arm, left_arm, right_leg, left_leg):
-            response = session.post("https://avatar.roblox.com/v2/avatar/set-wearing-assets", headers=func_headers, json={"assets":[]}, proxies=GetProxy())
+            response = session.post("https://avatar.roblox.com/v2/avatar/set-wearing-assets", headers=func_headers, json={"assets":[]})
             if response.ok:
                 cprint(msg="Removed All Items!")
 
@@ -990,7 +983,7 @@ def main(option, session, token, userid, username, cookie):
                 "rightLegColorId": right_leg,
                 "leftLegColorId": left_leg,
             }
-            response = session.post("https://avatar.roblox.com/v1/avatar/set-body-colors", json=body, headers=func_headers, proxies=GetProxy()) # type: ignore
+            response = session.post("https://avatar.roblox.com/v1/avatar/set-body-colors", json=body, headers=func_headers) # type: ignore
             
             if response.ok:
                 cprint("green", ">", "Success")
@@ -1504,7 +1497,7 @@ def main(option, session, token, userid, username, cookie):
 
             body = {"cloudAuthUserConfiguredProperties":{"name":name, "description": description, "isEnabled": True, "allowedCidrs": ["0.0.0.0/0"], "scopes": [{"scopeType": "asset","targetParts": ["U"],"operations": ["read", "write"]}]}}
 
-            response = session.post(url, headers=api_key_headers, json=body, proxies=GetProxy()) # type: ignore
+            response = session.post(url, headers=api_key_headers, json=body) # type: ignore
             json = response.json()
             if "Response.DuplicateKey" in response.text or "Response.InvalidNameOrDescription" in response.text:
                     
@@ -1746,7 +1739,7 @@ def main(option, session, token, userid, username, cookie):
                             "assetPrivacy": 1
                         }
 
-                        response = session.post("https://publish.roblox.com/v1/audio", json=data, headers=mass_upload_headers, proxies=GetProxy())
+                        response = session.post("https://publish.roblox.com/v1/audio", json=data, headers=mass_upload_headers)
                         data = response.json()
                         cprint("red", "!", str(response))
                         
@@ -1866,7 +1859,7 @@ def main(option, session, token, userid, username, cookie):
         amount_of_robux = 0
         cursor = ''
         while cursor != None:
-            response = session.get(f"https://economy.roblox.com/v2/users/{userid}/transactions?transactionType=Purchase&limit=100&cursor={cursor}", proxies=GetProxy())
+            response = session.get(f"https://economy.roblox.com/v2/users/{userid}/transactions?transactionType=Purchase&limit=100&cursor={cursor}")
             if response.ok:
                 data = response.json()
                 if not data["data"] == []:
@@ -1895,7 +1888,7 @@ def main(option, session, token, userid, username, cookie):
         def check_group_exists(group_id):
             cprint(msg="Checking If ROBLOX Group Exists")
             url = f"https://groups.roblox.com/v2/groups?groupIds={group_id}"
-            response = requests.get(url, proxies=GetProxy()) # type: ignore
+            response = requests.get(url) # type: ignore
             if response.ok:
                 data = response.json()
                 groups = data["data"]
@@ -1914,7 +1907,7 @@ def main(option, session, token, userid, username, cookie):
         if check_group_exists(groupid):
             cursor = ''
             while cursor != None:
-                response = session.get(f'https://groups.roblox.com/v1/groups/{groupid}/users?cursor={cursor}&limit=100&sortOrder=Desc', proxies=GetProxy())
+                response = session.get(f'https://groups.roblox.com/v1/groups/{groupid}/users?cursor={cursor}&limit=100&sortOrder=Desc')
 
                 if response.ok:
                     data = response.json()
@@ -1926,7 +1919,7 @@ def main(option, session, token, userid, username, cookie):
                     cursor = data['nextPageCursor']
             
             for target_id in members:
-                excile_user = session.delete(f'https://groups.roblox.com/v1/groups/{groupid}/users/{target_id}', headers={"x-csrf-token": getToken()}, proxies=GetProxy())
+                excile_user = session.delete(f'https://groups.roblox.com/v1/groups/{groupid}/users/{target_id}', headers={"x-csrf-token": getToken()})
                 if excile_user.ok:
                     cprint(msg=f"Kicked User With Id: {target_id}")
         
@@ -1940,10 +1933,10 @@ def main(option, session, token, userid, username, cookie):
         cprint("red", "!", "Are you sure you wanna nuke this account?")
         anwser = str(input("Y/N > "))
         if anwser.lower() == "y": 
-            session.patch("https://accountsettings.roblox.com/v1/themes/user", headers=func_headers, data={"themeType": "Light"}, proxies=GetProxy())
-            session.post("https://locale.roblox.com/v1/locales/set-user-supported-locale", headers=func_headers, data={"supportedLocaleCode": "th_th"}, proxies=GetProxy())
-            session.post("https://www.roblox.com/account/settings/account-restrictions?isEnabled=true", headers=func_headers, proxies=GetProxy())
-            session.post("https://notifications.roblox.com/v2/notifications/notification-preferences", headers=func_headers, data = {"updatedPreferences": [{"notificationType": "MarketingEmails", "notificationChannel": "Email", "preferenceStatus": "All"}]}, proxies=GetProxy())
+            session.patch("https://accountsettings.roblox.com/v1/themes/user", headers=func_headers, data={"themeType": "Light"})
+            session.post("https://locale.roblox.com/v1/locales/set-user-supported-locale", headers=func_headers, data={"supportedLocaleCode": "th_th"})
+            session.post("https://www.roblox.com/account/settings/account-restrictions?isEnabled=true", headers=func_headers)
+            session.post("https://notifications.roblox.com/v2/notifications/notification-preferences", headers=func_headers, data = {"updatedPreferences": [{"notificationType": "MarketingEmails", "notificationChannel": "Email", "preferenceStatus": "All"}]})
             cprint("green", "!", "Finished doing small nuke.")
         input("Press ENTER To Continue.")
         option_picker(session, userid, username, cookie)
@@ -2108,13 +2101,13 @@ def main_setup(roblox_cookie):
                 
             else:
                 
-                get_id = session.get("https://roblox.com", proxies=GetProxies()).text.split("\n")
+                get_id = session.get("https://roblox.com").text.split("\n")
 
                 for item in get_id:
                     if 'data-userid="' in item:
                         return_id = item.split('data-userid="')[1].replace('"', '')
                         break
-                response = session.get(f"https://users.roblox.com/v1/users/{return_id}", proxies=GetProxies())
+                response = session.get(f"https://users.roblox.com/v1/users/{return_id}")
                 user_data = response.json()
                 username = user_data["name"]
                 userid = return_id
